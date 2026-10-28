@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Interaktif: Organisasi dan Manajemen (Pertemuan 1)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .correct {
+            background-color: #d1fae5 !important;
+            border-color: #10b981 !important;
+            color: #065f46 !important;
+        }
+        .incorrect {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+        .disabled-option {
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen py-8 px-4 font-sans">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="bg-white rounded-xl shadow-md p-6 mb-8 border-t-4 border-blue-600">
+            <h1 class="text-2xl md:text-3xl font-bold text-slate-800">Kuis Interaktif: Organisasi & Manajemen</h1>
+            <p class="text-slate-600 mt-2">Materi Pertemuan 1 - Fakultas Ekonomi dan Bisnis Universitas Nasional</p>
+            <div class="mt-4 flex flex-wrap gap-4 text-sm font-semibold">
+                <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full">50 Pilihan Ganda</span>
+                <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full">10 Soal Esai</span>
+                <span id="score-display" class="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full">Skor PG: 0 / 50</span>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <div class="flex border-b border-slate-200 mb-6">
+            <button id="tab-pg" onclick="switchTab('pg')" class="py-2 px-6 font-semibold border-b-2 border-blue-600 text-blue-600 focus:outline-none">Pilihan Ganda (50)</button>
+            <button id="tab-essay" onclick="switchTab('essay')" class="py-2 px-6 font-semibold text-slate-500 hover:text-blue-600 border-b-2 border-transparent focus:outline-none">Soal Esai (10)</button>
+        </div>
+
+        <!-- Section Pilihan Ganda -->
+        <div id="section-pg" class="space-y-6">
+            <!-- Questions will be dynamically injected here -->
+        </div>
+
+        <!-- Section Essay -->
+        <div id="section-essay" class="space-y-6 hidden">
+            <!-- Essay Questions will be dynamically injected here -->
+        </div>
+    </div>
+
+    <script>
+        const pgData = [
+            {
+                q: "1. Pengertian organisasi menurut Griffin (2002) menekankan pada...",
+                options: [
+                    "Sekelompok orang yang bekerja sama dalam struktur dan koordinasi tertentu untuk mencapai tujuan.",
+                    "Seni dalam menyelesaikan sesuatu melalui orang lain secara individu.",
+                    "Proses bisnis profit untuk menghasilkan keuntungan sebesar-besarnya.",
+                    "Lembaga pendidikan dan pemerintahan yang bersifat non-profit."
+                ],
+                correct: 0,
+                explanation: "Griffin (2002) mendefinisikan organisasi sebagai sekelompok orang yang bekerjasama dalam struktur dan koordinasi tertentu dalam mencapai serangkaian tujuan tertentu."
+            },
+            {
+                q: "2. Menurut Ernie & Kurniawan (2005), organisasi adalah sekumpulan orang yang berupaya mewujudkan tujuannya melalui...",
+                options: [
+                    "Kompetisi internal secara ketat",
+                    "Kerja sama",
+                    "Instruksi pimpinan secara sepihak",
+                    "Penggunaan modal keuangan saja"
+                ],
+                correct: 1,
+                explanation: "Ernie & Kurniawan (2005) menyatakan bahwa organisasi mewujudkan tujuannya melalui kerja sama."
+            },
+            {
+                q: "3. Manakah dari pilihan berikut yang merupakan contoh organisasi profit jenis perusahaan manufaktur?",
+                options: [
+                    "Pemerintah Daerah",
+                    "Yayasan Sosial",
+                    "Pabrik Tekstil / Otomotif",
+                    "Lembaga Pendidikan Negeri"
+                ],
+                correct: 2,
+                explanation: "Perusahaan manufaktur tergolong dalam organisasi profit."
+            },
+            {
+                q: "4. Lembaga Pendidikan Negeri dan Yayasan Sosial dikategorikan sebagai jenis organisasi...",
+                options: [
+                    "Organisasi Profit Perusahaan Besar",
+                    "Organisasi Multinasional",
+                    "Organisasi Non-Profit / Nirlaba",
+                    "Koperasi Komersial"
+                ],
+                correct: 2,
+                explanation: "Lembaga Pendidikan Negeri dan Yayasan Sosial adalah contoh organisasi Non Profit/Nirlaba."
+            },
+            {
+                q: "5. Asal kata 'Manajemen' berasal dari frasa 'To Manage' yang memiliki arti...",
+                options: [
+                    "Mengatur, memproduksi, menjual",
+                    "Mengurus, mengelola, menata laksana",
+                    "Menilai, mengawasi, memberi sanksi",
+                    "Memimpin, mengarahkan, membiayai"
+                ],
+                correct: 1,
+                explanation: "To Manage berarti mengurus, mengelola, menata laksana."
+            },
+            {
+                q: "6. Tokoh yang mendefinisikan manajemen sebagai 'The art of Getting Things Done Through People' adalah...",
+                options: [
+                    "James A.F. Stoner",
+                    "Mary Parker Follett",
+                    "Peter Drucker",
+                    "Ricky W. Griffin"
+                ],
+                correct: 1,
+                explanation: "Mary Parker Follett mendefinisikan manajemen sebagai seni mencapai tujuan melalui orang-orang."
+            },
+            {
+                q: "7. Menurut James A.F. Stoner, manajemen adalah proses kegiatan yang mencakup...",
+                options: [
+                    "Perencanaan, pengorganisasian, memimpin, dan mengarahkan sumber daya",
+                    "Pengawasan dan koreksi keuangan semata",
+                    "Pemasaran, produksi, dan rekrutmen karyawan",
+                    "Pengembangan gagasan dan strategi pemasaran"
+                ],
+                correct: 0,
+                explanation: "Stoner mendefinisikan manajemen sebagai proses merencanakan, mengorganisasikan, memimpin, dan mengarahkan sumber daya."
+            },
+            {
+                q: "8. Nickels, McHugh and McHugh (1997) mendefinisikan manajemen sebagai rangkaian kegiatan...",
+                options: [
+                    "Penjualan, pembelian, dan pendistribusian barang",
+                    "Perencanaan, pengorganisasian, pengarahan, dan pengendalian orang serta sumber daya",
+                    "Pelatihan, rekrutmen, dan evaluasi hasil kerja",
+                    "Pengkoordinasian dan pelaporan kinerja bulanan"
+                ],
+                correct: 1,
+                explanation: "Definisi Nickels et al. mencakup perencanaan, pengorganisasian, pengarahan, dan pengendalian orang & sumber daya."
+            },
+            {
+                q: "9. Sumber daya organisasi yang mencakup data, petunjuk, dan analisis lingkungan tergolong ke dalam...",
+                options: [
+                    "Sumber Daya Manusia",
+                    "Sumber Daya Fisik",
+                    "Sumber Daya Informasi",
+                    "Sumber Daya Alam"
+                ],
+                correct: 2,
+                explanation: "Data dan analisis termasuk dalam Sumber Daya Informasi."
+            },
+            {
+                q: "10. Pengertian 'Efektif' menurut Peter Drucker adalah...",
+                options: [
+                    "Mengerjakan pekerjaan dengan benar atau tepat",
+                    "Mengerjakan pekerjaan yang benar atau tepat",
+                    "Menghemat biaya operasional seminimal mungkin",
+                    "Menyelesaikan pekerjaan dalam waktu singkat"
+                ],
+                correct: 1,
+                explanation: "Efektif = mengerjakan pekerjaan yang benar/tepat (Doing the right things)."
+            },
+            {
+                q: "11. Pengertian 'Efisien' menurut Peter Drucker adalah...",
+                options: [
+                    "Mengerjakan pekerjaan yang benar atau tepat",
+                    "Mengerjakan pekerjaan dengan benar atau tepat",
+                    "Menetapakan tujuan yang tinggi",
+                    "Menghasilkan output tanpa memperhitungkan biaya"
+                ],
+                correct: 1,
+                explanation: "Efisien = mengerjakan pekerjaan dengan benar/tepat (Doing things right)."
+            },
+            {
+                q: "12. Urutan fungsi manajemen dasar secara umum adalah...",
+                options: [
+                    "Controlling, Planning, Organizing, Leading",
+                    "Planning, Organizing, Directing/Leading, Controlling",
+                    "Leading, Planning, Controlling, Organizing",
+                    "Organizing, Planning, Directing, Controlling"
+                ],
+                correct: 1,
+                explanation: "Fungsi manajemen berurutan dari Perencanaan, Pengorganisasian, Pengarahan/Kepemimpinan, hingga Pengawasan/Pengendalian."
+            },
+            {
+                q: "13. Fungsi manajemen yang menyangkut penetapan sasaran dan tindakan terbaik untuk mencapai sasaran adalah...",
+                options: [
+                    "Perencanaan (Planning)",
+                    "Pengorganisasian (Organizing)",
+                    "Pengarahan (Directing)",
+                    "Pengendalian (Controlling)"
+                ],
+                correct: 0,
+                explanation: "Planning adalah proses menetapkan sasaran dan tindakan untuk mencapai sasaran."
+            },
+            {
+                q: "14. Menentukan apa yang perlu dilaksanakan, bagaimana cara melaksanakan, dan siapa yang melaksanakan merupakan fungsi...",
+                options: [
+                    "Planning",
+                    "Organizing",
+                    "Leading",
+                    "Controlling"
+                ],
+                correct: 1,
+                explanation: "Organizing menentukan pembagian tugas, prosedur, dan pelaksana pekerjaan."
+            },
+            {
+                q: "15. Kegiatan merumuskan strategi dan menentukan indikator keberhasilan termasuk dalam kegiatan fungsi...",
+                options: [
+                    "Pengorganisasian",
+                    "Pengarahan",
+                    "Perencanaan",
+                    "Pengawasan"
+                ],
+                correct: 2,
+                explanation: "Merumuskan strategi dan indikator keberhasilan dilakukan dalam fungsi Perencanaan (Planning)."
+            },
+            {
+                q: "16. Mengalokasikan sumber daya, menetapkan struktur organisasi, dan melakukan perekrutan/pelatihan SDM adalah kegiatan...",
+                options: [
+                    "Perencanaan",
+                    "Pengorganisasian",
+                    "Pengarahan",
+                    "Pengendalian"
+                ],
+                correct: 1,
+                explanation: "Alokasi sumber daya, struktur organisasi, dan rekrutmen/penempatan SDM masuk dalam Pengorganisasian."
+            },
+            {
+                q: "17. Memberikan tugas, motivasi, dan bimbingan rutin kepada pekerja agar bekerja produktif merupakan bagian dari fungsi...",
+                options: [
+                    "Planning",
+                    "Organizing",
+                    "Directing / Leading",
+                    "Controlling"
+                ],
+                correct: 2,
+                explanation: "Pengarahan dan implementasi (Directing/Leading) fokus pada pemberian kepemimpinan, motivasi, dan penjelasan tugas."
+            },
+            {
+                q: "18. Mengevaluasi pencapaian target dan mengambil tindakan koreksi atas penyimpangan adalah bagian dari fungsi...",
+                options: [
+                    "Perencanaan",
+                    "Pengorganisasian",
+                    "Pengarahan",
+                    "Pengawasan dan Pengendalian"
+                ],
+                correct: 3,
+                explanation: "Pengawasan & Pengendalian (Controlling) berfungsi melakukan evaluasi dan langkah koreksi atas penyimpangan."
+            },
+            {
+                q: "19. Menurut Luther Gullick, fungsi manajemen terdiri dari...",
+                options: [
+                    "Planning, Organizing, Staffing, Directing, Coordinating, Reporting, Controlling",
+                    "Planning, Organizing, Actuating, Controlling",
+                    "Planning, Organizing, Leading, Controlling",
+                    "Planning, Organizing, Staffing, Directing, Innovating, Representing, Controlling"
+                ],
+                correct: 0,
+                explanation: "Luther Gullick terkenal dengan konsep POSDCORB (Planning, Organizing, Staffing, Directing, Coordinating, Reporting, Controlling)."
+            },
+            {
+                q: "20. Istilah 'Actuating' dalam fungsi manajemen dipopulerkan oleh tokoh...",
+                options: [
+                    "Luther Gullick",
+                    "George Terry",
+                    "James A.F. Stoner",
+                    "Ernest Dale"
+                ],
+                correct: 1,
+                explanation: "George Terry membagi fungsi manajemen menjadi POAC (Planning, Organizing, Actuating, Controlling)."
+            },
+            {
+                q: "21. Ernest Dale menambahkan fungsi khusus dalam manajemen, yaitu...",
+                options: [
+                    "Reporting dan Coordinating",
+                    "Innovating dan Representing",
+                    "Actuating dan Staffing",
+                    "Leading dan Directing"
+                ],
+                correct: 1,
+                explanation: "Ernest Dale memasukkan elemen Innovating dan Representing dalam fungsi manajemennya."
+            },
+            {
+                q: "22. Fungsi operasional manajemen yang bertugas memperoleh dan memelihara SDM yang berkualitas adalah...",
+                options: [
+                    "Manajemen Pemasaran",
+                    "Manajemen Keuangan",
+                    "Manajemen Sumber Daya Manusia",
+                    "Manajemen Operasi"
+                ],
+                correct: 2,
+                explanation: "Manajemen SDM berfokus pada memperoleh, memelihara, dan mengembangkan tenaga kerja."
+            },
+            {
+                q: "23. Fungsi operasional manajemen yang berupaya mengidentifikasi kebutuhan konsumen dan cara pemenuhannya adalah...",
+                options: [
+                    "Manajemen Pemasaran",
+                    "Manajemen Informasi",
+                    "Manajemen Produksi",
+                    "Manajemen Keuangan"
+                ],
+                correct: 0,
+                explanation: "Manajemen Pemasaran berorientasi pada pemenuhan kebutuhan konsumen."
+            },
+            {
+                q: "24. Menghasilkan produk sesuai standar yang ditetapkan dengan teknik produksi seefisien mungkin adalah tugas dari...",
+                options: [
+                    "Manajemen Sumber Daya Manusia",
+                    "Manajemen Keuangan",
+                    "Manajemen Produksi/Operasi",
+                    "Manajemen Informasi"
+                ],
+                correct: 2,
+                explanation: "Manajemen Produksi mengatur proses pembuatan produk secara efisien dari lokasi hingga barang jadi."
+            },
+            {
+                q: "25. Merencanakan sumber pembiayaan bisnis dan mengalokasikan modal secara tepat untuk memperoleh profit adalah tugas...",
+                options: [
+                    "Manajemen Keuangan",
+                    "Manajemen Informasi",
+                    "Manajemen Pemasaran",
+                    "Manajemen SDM"
+                ],
+                correct: 0,
+                explanation: "Manajemen Keuangan mengelola pembiayaan, alokasi modal, dan pencapaian tujuan ekonomis (profit)."
+            },
+            {
+                q: "26. Menyediakan informasi internal dan eksternal agar bisnis mampu beradaptasi dengan perubahan lingkungan adalah tugas...",
+                options: [
+                    "Manajemen Keuangan",
+                    "Manajemen Informasi",
+                    "Manajemen Pemasaran",
+                    "Manajemen Operasi"
+                ],
+                correct: 1,
+                explanation: "Manajemen Informasi bertugas mengelola alur informasi internal dan eksternal."
+            },
+            {
+                q: "27. Tingkatan manajer yang bertanggung jawab atas keseluruhan kegiatan dan kebijaksanaan organisasi adalah...",
+                options: [
+                    "Manajer Tingkat Rendah (Lower/First-line)",
+                    "Manajer Menengah (Middle)",
+                    "Manajer Puncak (Top Manager)",
+                    "Pekerja Non-Manajerial"
+                ],
+                correct: 2,
+                explanation: "Manajer Puncak bertanggung jawab penuh atas arah, tujuan, dan kebijakan organisasi secara keseluruhan."
+            },
+            {
+                q: "28. Manajer yang bertugas mengarahkan karyawan non-manajerial dan melaksanakan pekerjaan yang digariskan atasan adalah...",
+                options: [
+                    "Manajer Puncak",
+                    "Manajer Menengah",
+                    "Manajer Tingkat Rendah",
+                    "Direktur Utama"
+                ],
+                correct: 2,
+                explanation: "Manajer Tingkat Rendah (First-line) memimpin langsung staf non-manajerial."
+            },
+            {
+                q: "29. Manajer Menengah memiliki peran utama untuk...",
+                options: [
+                    "Mengarahkan karyawan operasional harian saja",
+                    "Melaksanakan kebijakan organisasi dari manajer puncak dan mengarahkan manajer tingkat rendah",
+                    "Mengambil keputusan strategis jangka panjang bagi seluruh unit perusahaan",
+                    "Melakukan negosiasi hukum dengan pihak luar secara eksklusif"
+                ],
+                correct: 1,
+                explanation: "Manajer Menengah menjembatani manajer puncak dan tingkat rendah."
+            },
+            {
+                q: "30. Keterampilan manajer untuk membuat perencanaan, ide, gagasan strategi, dan mengkoordinasi kegiatan disebut...",
+                options: [
+                    "Keterampilan Teknis",
+                    "Keterampilan Hubungan Manusiawi",
+                    "Keterampilan Konseptual",
+                    "Keterampilan Operasional"
+                ],
+                correct: 2,
+                explanation: "Keterampilan Konseptual adalah kemampuan berpikir abstrak, merumuskan ide, dan perencanaan strategis."
+            },
+            {
+                q: "31. Keterampilan manajer untuk bekerja sama, memotivasi, dan berinteraksi dengan orang lain disebut...",
+                options: [
+                    "Keterampilan Konseptual",
+                    "Keterampilan Hubungan Manusiawi (Human Skills)",
+                    "Keterampilan Teknis",
+                    "Keterampilan Finansial"
+                ],
+                correct: 1,
+                explanation: "Human Skills berhubungan dengan kemampuan interaksi dan komunikasi dengan individu/kelompok."
+            },
+            {
+                q: "32. Keterampilan yang mencakup pengetahuan dan keahlian dalam bidang khusus tertentu dinamakan...",
+                options: [
+                    "Keterampilan Teknis",
+                    "Keterampilan Konseptual",
+                    "Keterampilan Hubungan Manusiawi",
+                    "Keterampilan Manajerial Umum"
+                ],
+                correct: 0,
+                explanation: "Keterampilan Teknis adalah keahlian spesifik dalam mengerjakan tugas operasional tertentu."
+            },
+            {
+                q: "33. Manakah yang TERMASUK dalam kelompok Peran Hubungan Antar Pribadi (Interpersonal Role)?",
+                options: [
+                    "Pemantau, Penyebar, Juru Bicara",
+                    "Wirausaha, Pengendali Gangguan, Alokasi Sumber Daya",
+                    "Pemimpin Lambang, Pemimpin, Penghubung (Liaison)",
+                    "Perunding, Pemantau, Wirausaha"
+                ],
+                correct: 2,
+                explanation: "Interpersonal Role meliputi: Pemimpin Lambang (Figurehead), Pemimpin (Leader), dan Penghubung (Liaison)."
+            },
+            {
+                q: "34. Peran manajer ketika berinteraksi dengan teman sejawat atau orang luar untuk mencari informasi disebut peran...",
+                options: [
+                    "Pemimpin Lambang",
+                    "Penghubung (Liaison)",
+                    "Juru Bicara",
+                    "Pengendali Gangguan"
+                ],
+                correct: 1,
+                explanation: "Liaison (Penghubung) bertugas membangun jaringan dan hubungan keluar/ke samping."
+            },
+            {
+                q: "35. Peran manajer dalam kategori Peran Informasional meliputi...",
+                options: [
+                    "Pemantau, Penyebar, Juru Bicara",
+                    "Pemimpin, Penghubung, Perunding",
+                    "Wirausaha, Alokator Sumber Daya, Pengendali Gangguan",
+                    "Pemimpin Lambang, Pemantau, Wirausaha"
+                ],
+                correct: 0,
+                explanation: "Peran Informasional terdiri dari Pemantau (Monitor), Penyebar (Disseminator), dan Juru Bicara (Spokesperson)."
+            },
+            {
+                q: "36. Menyampaikan informasi atau kebijakan ke luar organisasi adalah pelaksanaan peran...",
+                options: [
+                    "Penyebar",
+                    "Juru Bicara (Spokesperson)",
+                    "Pemantau",
+                    "Penghubung"
+                ],
+                correct: 1,
+                explanation: "Juru Bicara memberikan informasi resmi ke pihak eksternal."
+            },
+            {
+                q: "37. Mengawali dan mengawasi proyek-proyek baru yang memperbaiki kinerja perusahaan adalah peran pengambil keputusan berupa...",
+                options: [
+                    "Pengendali Gangguan",
+                    "Wirausaha (Entrepreneur)",
+                    "Alokasi Sumber Daya",
+                    "Perunding"
+                ],
+                correct: 1,
+                explanation: "Peran Entrepreneur berfokus pada inovasi dan pengembangan proyek perbaikan."
+            },
+            {
+                q: "38. Mengambil tindakan antisipasi saat organisasi terancam bahaya (pemogokan, konflik internal, gosip) adalah peran...",
+                options: [
+                    "Pengendali Gangguan (Disturbance Handler)",
+                    "Wirausaha",
+                    "Juru Bicara",
+                    "Pemimpin Lambang"
+                ],
+                correct: 0,
+                explanation: "Disturbance Handler bertugas mengatasi krisis dan gangguan tidak terduga."
+            },
+            {
+                q: "39. Bertanggung jawab mendistribusikan peralatan, dana, dan tenaga kerja ke bagian-bagian organisasi adalah peran...",
+                options: [
+                    "Perunding",
+                    "Alokasi Sumber Daya (Resource Allocator)",
+                    "Penyebar",
+                    "Pemimpin"
+                ],
+                correct: 1,
+                explanation: "Resource Allocator menentukan pembagian sumber daya organisasi."
+            },
+            {
+                q: "40. Berunding untuk mencari kesepakatan dengan pihak internal/eksternal termasuk dalam peran...",
+                options: [
+                    "Penghubung",
+                    "Perunding (Negotiator)",
+                    "Juru Bicara",
+                    "Pengendali Gangguan"
+                ],
+                correct: 1,
+                explanation: "Negotiator bertugas melakukan tawar-menawar/negosiasi demi mencapai kesepakatan."
+            },
+            {
+                q: "41. Kebutuhan dasar manusia seperti makanan, pakaian, dan tempat tinggal menurut hierarki kebutuhan tergolong...",
+                options: [
+                    "Kebutuhan Rasa Aman",
+                    "Kebutuhan Fisiologis",
+                    "Kebutuhan Sosial",
+                    "Kebutuhan Penghargaan"
+                ],
+                correct: 1,
+                explanation: "Kebutuhan fisik paling mendasar (makan, minum, tempat tinggal) adalah kebutuhan Fisiologis."
+            },
+            {
+                q: "42. Keinginan memiliki pekerjaan tetap, jaminan kesehatan, dan dana pensiun mencerminkan pemenuhan kebutuhan...",
+                options: [
+                    "Fisiologis",
+                    "Rasa Aman",
+                    "Sosial",
+                    "Aktualisasi Diri"
+                ],
+                correct: 1,
+                explanation: "Jaminan kerja, kesehatan, dan pensiun masuk kategori Kebutuhan Rasa Aman."
+            },
+            {
+                q: "43. Keinginan akan kesetiakawanan, cinta, sosialisasi, dan rekreasi kelompok termasuk dalam kebutuhan...",
+                options: [
+                    "Rasa Aman",
+                    "Sosial",
+                    "Penghargaan",
+                    "Aktualisasi Diri"
+                ],
+                correct: 1,
+                explanation: "Sosialisasi dan hubungan antarpersonal tergolong Kebutuhan Sosial."
+            },
+            {
+                q: "44. Dikenal lingkungan atas prestasi, promosi jabatan, status, dan penerimaan tanda jasa memenuhi kebutuhan...",
+                options: [
+                    "Penghargaan (Esteem Needs)",
+                    "Sosial",
+                    "Fisiologis",
+                    "Rasa Aman"
+                ],
+                correct: 0,
+                explanation: "Pengakuan, status, dan promosi memenuhi Kebutuhan Penghargaan."
+            },
+            {
+                q: "45. Tingkat kebutuhan tertinggi yang mencakup pengembangan diri, inisiatif, dan kemampuan memecahkan masalah adalah...",
+                options: [
+                    "Kebutuhan Penghargaan",
+                    "Kebutuhan Aktualisasi Diri",
+                    "Kebutuhan Sosial",
+                    "Kebutuhan Keamanan"
+                ],
+                correct: 1,
+                explanation: "Aktualisasi Diri adalah tingkatan kebutuhan tertinggi untuk merealisasikan potensi penuh seseorang."
+            },
+            {
+                q: "46. Menyalurkan keterampilan, kemampuan kreatif karyawan, serta mendesain tugas yang rumit merupakan bentuk penyaluran kebutuhan...",
+                options: [
+                    "Fisiologis",
+                    "Rasa Aman",
+                    "Aktualisasi Diri",
+                    "Sosial"
+                ],
+                correct: 2,
+                explanation: "Mengembangkan kreativitas dan menyelesaikan tugas rumit menyalurkan kebutuhan Aktualisasi Diri."
+            },
+            {
+                q: "47. Fenomena ketika kebutuhan tingkat tinggi dikecewakan sehingga kebutuhan yang lebih rendah muncul kembali dijelaskan dalam teori...",
+                options: [
+                    "Teori ERG",
+                    "Teori Dua Faktor Herzberg",
+                    "Teori X dan Y",
+                    "Teori Keadilan"
+                ],
+                correct: 0,
+                explanation: "Teori ERG (Existence, Relatedness, Growth) menjelaskan prinsip frustrasi-regresi tersebut."
+            },
+            {
+                q: "48. Elemen sumber daya organisasi yang tidak berwujud namun sangat vital dalam era modern adalah...",
+                options: [
+                    "Sumber Daya Fisik",
+                    "Sumber Daya Alam",
+                    "Sumber Daya Informasi",
+                    "Sumber Daya Peralatan"
+                ],
+                correct: 2,
+                explanation: "Informasi merupakan sumber daya tak berwujud (intangible) yang sangat kritis bagi pengambilan keputusan."
+            },
+            {
+                q: "49. Bagan hubungan antar fungsi manajemen menunjukkan bahwa Controlling berfungsi untuk...",
+                options: [
+                    "Menentukan tujuan utama sejak awal",
+                    "Monitoring dan perbaikan aktifitas yang sedang berjalan agar tujuan tercapai",
+                    "Penyusunan struktur organisasi baru",
+                    "Memberikan motivasi kepada karyawan secara langsung"
+                ],
+                correct: 1,
+                explanation: "Controlling bertujuan memantau (monitoring) dan melakukan tindakan korektif/perbaikan."
+            },
+            {
+                q: "50. Keterampilan konseptual paling dominan dan krusial harus dimiliki oleh...",
+                options: [
+                    "Manajer Tingkat Rendah",
+                    "Manajer Puncak (Top Manager)",
+                    "Supervisor Lapangan",
+                    "Karyawan Operasional"
+                ],
+                correct: 1,
+                explanation: "Manajer puncak memerlukan keterampilan konseptual paling tinggi untuk menentukan arah jangka panjang organisasi."
+            }
+        ];
+
+        const essayData = [
+            {
+                q: "1. Jelaskan perbedaan mendasar antara organisasi profit dan organisasi non-profit (nirlaba) beserta contohnya berdasarkan materi!",
+                a: "Organisasi Profit berfokus pada pencapaian keuntungan finansial (laba). Contohnya: Perusahaan Besar (manufaktur, bank umum, ritel), Perusahaan Kecil, Koperasi, Perusahaan Multinasional.\n\nOrganisasi Non-Profit/Nirlaba berfokus pada pelayanan publik atau sosial tanpa mengutamakan keuntungan materi. Contohnya: Pemerintah Pusat/Daerah, Lembaga Pendidikan Negeri, Yayasan Sosial."
+            },
+            {
+                q: "2. Jelaskan perbedaan antara pengertian 'Efektif' dan 'Efisien' menurut Peter Drucker!",
+                a: "Menurut Peter Drucker:\n- Efektif berarti 'mengerjakan pekerjaan yang benar atau tepat' (doing the right things), fokus pada pencapaian target/tujuan.\n- Efisien berarti 'mengerjakan pekerjaan dengan benar atau tepat' (doing things right), fokus pada penggunaan sumber daya/biaya secara optimal dan hemat."
+            },
+            {
+                q: "3. Sebutkan dan jelaskan 4 fungsi utama manajemen secara umum!",
+                a: "1. Perencanaan (Planning): Menetapkan sasaran, tujuan, serta merumuskan strategi dan taktik untuk mencapainya.\n2. Pengorganisasian (Organizing): Menentukan struktur, mengalokasikan sumber daya, membagi tugas dan menentukan pelaksana pekerjaan.\n3. Pengarahan (Directing/Leading): Mengimplementasikan program, memimpin, memotivasi, dan mengarahkan karyawan agar bekerja produktif.\n4. Pengawasan & Pengendalian (Controlling): Memantau kegiatan, mengevaluasi keberhasilan sesuai indikator, dan melakukan tindakan koreksi."
+            },
+            {
+                q: "4. Bandingkan pandangan fungsi manajemen menurut Luther Gullick dan George Terry!",
+                a: "- Luther Gullick membagi manajemen menjadi 7 fungsi (POSDCORB): Planning, Organizing, Staffing, Directing, Coordinating, Reporting, dan Controlling.\n- George Terry membagi manajemen menjadi 4 fungsi utama (POAC): Planning, Organizing, Actuating, dan Controlling."
+            },
+            {
+                q: "5. Sebutkan 5 fungsi operasional dalam manajemen dan jelaskan tugas dari Manajemen Keuangan!",
+                a: "5 Fungsi Operasional: Manajemen SDM, Manajemen Pemasaran, Manajemen Operasi/Produksi, Manajemen Keuangan, dan Manajemen Informasi.\n\nTugas Manajemen Keuangan: Memastikan kegiatan bisnis mencapai tujuan secara ekonomis (profit), merencanakan sumber pembiayaan bisnis, serta mengalokasikan modal secara tepat dalam kegiatan operasional."
+            },
+            {
+                q: "6. Uraikan 3 tingkatan manajer dalam organisasi beserta cakupan tugas utamanya!",
+                a: "1. Manajer Puncak (Top Level): Bertanggung jawab atas keseluruhan kegiatan, visi, dan kebijakan strategis organisasi.\n2. Manajer Menengah (Middle Level): Mempengaruhi kegiatan, melaksanakan kebijakan manajer puncak, dan mengarahkan manajer tingkat rendah.\n3. Manajer Tingkat Rendah (Lower/First-line Level): Melaksanakan pekerjaan operasional yang digariskan manajer menengah/puncak dan mengarahkan karyawan non-manajerial."
+            },
+            {
+                q: "7. Sebutkan dan jelaskan 3 keterampilan dasar yang harus dimiliki oleh seorang manajer!",
+                a: "1. Keterampilan Konseptual: Kemampuan membuat perencanaan, ide, gagasan strategi, dan mengkoordinasikan seluruh kegiatan organisasi.\n2. Keterampilan Hubungan Manusiawi (Human Skills): Kemampuan bekerjasama, berkomunikasi, dan memotivasi orang lain baik secara individu maupun kelompok.\n3. Keterampilan Teknis: Pengetahuan dan keahlian spesifik dalam bidang atau teknik operasional tertentu."
+            },
+            {
+                q: "8. Sebutkan 3 kelompok besar peran manajemen menurut Mintzberg dan jelaskan rincian peran Informasional!",
+                a: "3 Kelompok Peran: Peran Hubungan Antar Pribadi, Peran Informasional, dan Peran Pengambil Keputusan.\n\nRincian Peran Informasional:\n- Pemantau (Monitor): Mencari, menerima, dan menseleksi informasi serta mendeteksi ancaman/peluang.\n- Penyebar (Disseminator): Menyalurkan informasi internal kepada anggota organisasi.\n- Juru Bicara (Spokesperson): Menyampaikan informasi resmi ke luar organisasi."
+            },
+            {
+                q: "9. Jelaskan peran manajer sebagai 'Pengambil Keputusan' (Decisional Role) yang terdiri dari 4 peran!",
+                a: "1. Wirausaha (Entrepreneur): Mengawali dan mengawasi proyek perbaikan kinerja perusahaan.\n2. Pengendalian Gangguan (Disturbance Handler): Mengambil tindakan antisipasi saat organisasi mengalami krisis/ancaman (seperti pemogokan, konflik).\n3. Alokasi Sumber Daya (Resource Allocator): Mendistribusikan dana, SDM, dan fasilitas ke unit-unit kerja.\n4. Perunding (Negotiator): Melakukan negosiasi untuk mencapai kesepakatan dengan pihak internal maupun eksternal."
+            },
+            {
+                q: "10. Sebutkan 5 tingkatan Kebutuhan Maslow yang disebutkan dalam materi dan berikan contoh masing-masing!",
+                a: "1. Fisiologis: Makanan, pakaian, tempat tinggal.\n2. Rasa Aman: Pekerjaan tetap, jaminan kesehatan, pensiun.\n3. Sosial: Kesetiakawanan, kasih sayang, sosialisasi, rekreasi.\n4. Penghargaan: Pengakuan prestasi, promosi jabatan, status, tanda jasa.\n5. Aktualisasi Diri: Pengembangan diri, inisiatif, kreativitas, pemecahan masalah rumit."
+            }
+        ];
+
+        let userAnswers = new Array(pgData.length).fill(null);
+        let score = 0;
+
+        function renderPG() {
+            const container = document.getElementById('section-pg');
+            container.innerHTML = '';
+
+            pgData.forEach((qData, qIdx) => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-6 rounded-xl shadow-sm border border-slate-200";
+
+                let optionsHTML = '';
+                qData.options.forEach((opt, optIdx) => {
+                    optionsHTML += `
+                        <button 
+                            id="btn-${qIdx}-${optIdx}"
+                            onclick="checkAnswer(${qIdx}, ${optIdx})"
+                            class="w-full text-left p-3.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition-all font-medium text-slate-700 flex items-start gap-3">
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-100 text-slate-600 text-xs font-bold shrink-0">${String.fromCharCode(65 + optIdx)}</span>
+                            <span>${opt}</span>
+                        </button>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <h3 class="font-semibold text-lg text-slate-800 mb-4">${qData.q}</h3>
+                    <div class="space-y-2.5 mb-4">
+                        ${optionsHTML}
+                    </div>
+                    <div id="explanation-${qIdx}" class="hidden p-4 rounded-lg bg-slate-50 border border-slate-200 text-sm text-slate-700 mt-3">
+                        <strong class="text-slate-900 block mb-1">Pembahasan:</strong>
+                        ${qData.explanation}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function checkAnswer(qIdx, optIdx) {
+            if (userAnswers[qIdx] !== null) return; // Prevent re-answering
+
+            userAnswers[qIdx] = optIdx;
+            const correctIdx = pgData[qIdx].correct;
+            const isCorrect = optIdx === correctIdx;
+
+            if (isCorrect) {
+                score++;
+                document.getElementById('score-display').innerText = `Skor PG: ${score} / 50`;
+            }
+
+            // Style buttons
+            pgData[qIdx].options.forEach((_, i) => {
+                const btn = document.getElementById(`btn-${qIdx}-${i}`);
+                btn.classList.add('disabled-option');
+                if (i === correctIdx) {
+                    btn.classList.add('correct');
+                } else if (i === optIdx && !isCorrect) {
+                    btn.classList.add('incorrect');
+                }
+            });
+
+            // Show explanation
+            const expDiv = document.getElementById(`explanation-${qIdx}`);
+            expDiv.classList.remove('hidden');
+        }
+
+        function renderEssay() {
+            const container = document.getElementById('section-essay');
+            container.innerHTML = '';
+
+            essayData.forEach((item, idx) => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-6 rounded-xl shadow-sm border border-slate-200";
+
+                card.innerHTML = `
+                    <h3 class="font-semibold text-lg text-slate-800 mb-3">${item.q}</h3>
+                    <textarea placeholder="Tuliskan jawaban Anda di sini untuk latihan..." class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-slate-700 mb-3 min-h-[100px]"></textarea>
+                    <button 
+                        onclick="toggleEssayAnswer(${idx})" 
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm transition-colors">
+                        Tampilkan Kunci Jawaban
+                    </button>
+                    <div id="essay-ans-${idx}" class="hidden mt-4 p-4 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900 text-sm whitespace-pre-line">
+                        <strong class="block mb-1 text-emerald-950 font-bold">Kunci Jawaban / Pembahasan:</strong>
+                        ${item.a}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function toggleEssayAnswer(idx) {
+            const ansDiv = document.getElementById(`essay-ans-${idx}`);
+            ansDiv.classList.toggle('hidden');
+        }
+
+        function switchTab(tab) {
+            const pgSec = document.getElementById('section-pg');
+            const essaySec = document.getElementById('section-essay');
+            const pgTab = document.getElementById('tab-pg');
+            const essayTab = document.getElementById('tab-essay');
+
+            if (tab === 'pg') {
+                pgSec.classList.remove('hidden');
+                essaySec.classList.add('hidden');
+                pgTab.className = "py-2 px-6 font-semibold border-b-2 border-blue-600 text-blue-600 focus:outline-none";
+                essayTab.className = "py-2 px-6 font-semibold text-slate-500 hover:text-blue-600 border-b-2 border-transparent focus:outline-none";
+            } else {
+                pgSec.classList.add('hidden');
+                essaySec.classList.remove('hidden');
+                essayTab.className = "py-2 px-6 font-semibold border-b-2 border-blue-600 text-blue-600 focus:outline-none";
+                pgTab.className = "py-2 px-6 font-semibold text-slate-500 hover:text-blue-600 border-b-2 border-transparent focus:outline-none";
+            }
+        }
+
+        // Initial rendering
+        renderPG();
+        renderEssay();
+    </script>
+</body>
+</html>
+```eof
+
+### Fitur Kuis Interaktif Ini:
+1. **Pilihan Ganda (50 Soal):**
+   - Jawaban dan pembahasan awal disembunyikan.
+   - Saat opsi diklik:
+     - Jika **Benar**, pilihan berubah warna **Hijau**.
+     - Jika **Salah**, pilihan berubah warna **Merah** dan jawaban yang benar disorot warna **Hijau**.
+   - Menampilkan pembahasan instan di bawah setiap soal setelah dijawab.
+   - Perhitungan skor otomatis di pojok kanan atas.
+2. **Soal Esai (10 Soal):**
+   - Disediakan kolom lembar kerja untuk latihan menjawab.
+   - Kunci jawaban lengkap disembunyikan di balik tombol **"Tampilkan Kunci Jawaban"**.
+3. **Desain:** Modern, responsif, dan nyaman dibaca baik melalui HP maupun Laptop.
